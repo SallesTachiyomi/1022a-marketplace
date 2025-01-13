@@ -12,7 +12,7 @@ app.get("/produtos", async (req, res) => {
     try {
         const banco = new BancoMysql()
         await banco.criarConexao()
-        const result = await banco.consultar()
+        const result = await banco.consultar("select * from produtos")
         await banco.finalizarConexao()
         res.send(result)
     } catch (e) {
@@ -22,18 +22,11 @@ app.get("/produtos", async (req, res) => {
 })
 app.post("/produtos", async (req, res) => {
     try {
-        const connection = await mysql.createConnection({
-            host: process.env.dbhost ? process.env.dbhost : "localhost",
-            user: process.env.dbuser ? process.env.dbuser : "root",
-            password: process.env.dbpassword ? process.env.dbpassword : "",
-            database: process.env.dbname ? process.env.dbname : "banco1022a",
-            port: process.env.dbport ? parseInt(process.env.dbport) : 3306
-        })
         const {id,nome,descricao,preco,imagem} = req.body
-        const [result, fields] = 
-                    await connection.query("INSERT INTO produtos VALUES (?,?,?,?,?)",
-                            [id,nome,descricao,preco,imagem])
-        await connection.end()
+        const banco = new BancoMysql()
+        await banco.criarConexao()
+        const result = await banco.consultar("INSERT INTO produtos VALUES (?,?,?,?,?)",[id,nome,descricao,preco,imagem])
+        await banco.finalizarConexao()
         res.send(result)
     } catch (e) {
         console.log(e)
@@ -41,22 +34,23 @@ app.post("/produtos", async (req, res) => {
     }
 })
 
+//DELETAR
+app.delete("/produtos/:id",async(req,res)=>{
+    console.log(req.params.id)
+    const query = "DELETE FROM produtos WHERE id = ?"
+    const parametros = [req.params.id]
 
-app.get("/usuarios", async (req, res) => {
-    try {
-        const connection = await mysql.createConnection({
-            host: process.env.dbhost ? process.env.dbhost : "localhost",
-            user: process.env.dbuser ? process.env.dbuser : "root",
-            password: process.env.dbpassword ? process.env.dbpassword : "",
-            database: process.env.dbname ? process.env.dbname : "banco1022a",
-            port: process.env.dbport ? parseInt(process.env.dbport) : 3306
-        })
-        const [result, fields] = await connection.query("SELECT * from usuarios")
-        await connection.end()
-        res.send(result)
-    } catch (e) {
-        res.status(500).send("Server ERROR")
-    }
+    const banco = new BancoMysql()
+    await banco.criarConexao()
+    const result = await banco.consultar(query,parametros)
+    await banco.finalizarConexao()
+    res.send("Produto excluido com sucesso id: "+req.params.id)
+})
+
+//ALTERAR
+app.put("/produtos/:id",(req,res)=>{
+    console.log(req.params.id)
+    
 })
 
 app.listen(8000, () => {
