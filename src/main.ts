@@ -12,7 +12,7 @@ app.get("/produtos", async (req, res) => {
     try {
         const banco = new BancoMysql()
         await banco.criarConexao()
-        const result = await banco.consultar("select * from produtos")
+        const result = await banco.listar()
         await banco.finalizarConexao()
         res.send(result)
     } catch (e) {
@@ -25,9 +25,10 @@ app.post("/produtos", async (req, res) => {
         const {id,nome,descricao,preco,imagem} = req.body
         const banco = new BancoMysql()
         await banco.criarConexao()
-        const result = await banco.consultar("INSERT INTO produtos VALUES (?,?,?,?,?)",[id,nome,descricao,preco,imagem])
+        const produto = {id,nome,descricao,preco,imagem}
+        const result = await banco.inserir(produto)
         await banco.finalizarConexao()
-        res.send(result)
+        res.send(result) 
     } catch (e) {
         console.log(e)
         res.status(500).send(e)
@@ -36,21 +37,22 @@ app.post("/produtos", async (req, res) => {
 
 //DELETAR
 app.delete("/produtos/:id",async(req,res)=>{
-    console.log(req.params.id)
-    const query = "DELETE FROM produtos WHERE id = ?"
-    const parametros = [req.params.id]
-
     const banco = new BancoMysql()
     await banco.criarConexao()
-    const result = await banco.consultar(query,parametros)
+    const result = await banco.excluir(req.params.id)
     await banco.finalizarConexao()
     res.send("Produto excluido com sucesso id: "+req.params.id)
 })
 
 //ALTERAR
-app.put("/produtos/:id",(req,res)=>{
-    console.log(req.params.id)
-    
+app.put("/produtos/:id",async(req,res)=>{
+    const {id,nome,descricao,preco,imagem} = req.body
+    const produto = {nome,descricao,preco,imagem}
+    const banco = new BancoMysql()
+    await banco.criarConexao()
+    const result = await banco.alterar(req.params.id,produto)
+    await banco.finalizarConexao()
+    res.send("Produto alterado com sucesso id: "+req.params.id)
 })
 
 app.listen(8000, () => {
