@@ -11,7 +11,7 @@ app.use(cors())
 
 app.get("/produtos", async (req, res) => {
     try {
-        const banco = new BancoMongo()
+        const banco = new BancoMysql()
         await banco.criarConexao()
         const result = await banco.listar()
         await banco.finalizarConexao()
@@ -24,7 +24,7 @@ app.get("/produtos", async (req, res) => {
 app.get("/produtos/:id", async (req, res) => {
     try {
         
-        const banco = new BancoMongo()
+        const banco = new BancoMysql()
         await banco.criarConexao()
         const result = await banco.listarPorId(req.params.id)
         await banco.finalizarConexao()
@@ -37,9 +37,9 @@ app.get("/produtos/:id", async (req, res) => {
 app.post("/produtos", async (req, res) => {
     try {
         const {id,nome,descricao,preco,imagem} = req.body
-        const banco = new BancoMongo()
+        const banco = new BancoMysql()
         await banco.criarConexao()
-        const produto = {id,nome,descricao,preco,imagem}
+        const produto = {id:parseInt(id),nome,descricao,preco,imagem}
         const result = await banco.inserir(produto)
         await banco.finalizarConexao()
         res.send(result) 
@@ -52,7 +52,7 @@ app.post("/produtos", async (req, res) => {
 //DELETAR
 app.delete("/produtos/:id",async(req,res)=>{
     try{
-        const banco = new BancoMongo()
+        const banco = new BancoMysql()
         await banco.criarConexao()
         const result = await banco.excluir(req.params.id)
         await banco.finalizarConexao()
@@ -69,7 +69,7 @@ app.delete("/produtos/:id",async(req,res)=>{
 app.put("/produtos/:id",async(req,res)=>{
     const {nome,descricao,preco,imagem} = req.body
     const produto = {nome,descricao,preco,imagem}
-    const banco = new BancoMongo()
+    const banco = new BancoMysql()
     await banco.criarConexao()
     const result = await banco.alterar(req.params.id,produto)
     await banco.finalizarConexao()
