@@ -2,7 +2,6 @@ import express from 'express'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import BancoMysql from './db/banco-mysql'
-import BancoMongo from './db/banco-mongo'
 
 const app = express()
 app.use(express.json())
